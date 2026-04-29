@@ -56,9 +56,10 @@
     const description = document.getElementById('description').value.trim();
     if(!name){ alert('Name required'); return }
     try{
-      const res = await fetch(API_BASE + '/api/protocols', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description,steps:[]})});
+      const res = await fetch(API_BASE + '/api/protocols', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description})});
+      if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) }
       const json = await res.json();
-      document.getElementById('createResult').innerText = 'Created: '+(json.id||JSON.stringify(json));
+      document.getElementById('createResult').innerText = 'Created: '+json.id;
       list();
     }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
   }
