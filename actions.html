@@ -18,7 +18,6 @@
 <header><h2 style="margin:0">Actions</h2></header>
 <main>
   <section class="card">
-    <h3>Transition an Action</h3>
     <label>Action ID <input id="actionId"></label>
     <div style="display:flex;gap:6px">
       <button id="implement">Implement</button>
@@ -31,13 +30,12 @@
   </section>
 
   <section class="card">
-    <h3>Add Allocation</h3>
     <label>Action ID <input id="allocActionId"></label>
     <label>ResourceType ID <input id="resType"></label>
     <label>Quantity <input id="qty" type="number" step="0.01"></label>
     <label>Kind <select id="allocKind"><option value="GENERAL">GENERAL</option><option value="SPECIFIC">SPECIFIC</option></select></label>
     <label>Asset ID (optional) <input id="assetId"></label>
-    <button id="addAlloc">Add</button>
+    <button id="addAlloc">Add Allocation</button>
     <div id="allocResult"></div>
   </section>
 
