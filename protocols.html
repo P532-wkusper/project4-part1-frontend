@@ -11,9 +11,11 @@
     .card{border:1px solid #ddd;padding:12px;margin:8px 0;border-radius:6px}
     input,textarea,select{width:100%;padding:8px;margin:6px 0}
     button{padding:8px 12px;background:#2a9d8f;color:#fff;border:0;border-radius:4px}
+    button.remove{background:#d32f2f;margin-left:8px}
     ul{list-style:none;padding:0}
     li{padding:8px 0;border-bottom:1px dashed #eee}
     pre{background:#f4f4f4;padding:8px}
+    .step-item{border:1px solid #ddd;padding:8px;margin:6px 0;background:#fafafa}
   </style>
 </head>
 <body>
@@ -22,13 +24,24 @@
 </header>
 <main>
   <section class="card">
+    <h3>Create Protocol</h3>
     <label>Name <input id="name"></label>
     <label>Description <textarea id="description"></textarea></label>
-    <button id="createBtn">Create</button>
+    
+    <h4>Add Steps</h4>
+    <label>Step Name <input id="stepName"></label>
+    <label>Sub-Protocol ID (optional) <input id="stepSubProto"></label>
+    <label>Depends On (comma-separated step names, optional) <input id="stepDeps"></label>
+    <button id="addStepBtn">Add Step</button>
+    
+    <div id="stepsList"></div>
+    
+    <button id="createBtn">Create Protocol</button>
     <div id="createResult"></div>
   </section>
 
   <section class="card">
+    <h3>List Protocols</h3>
     <button id="refreshBtn">Refresh</button>
     <ul id="list"></ul>
   </section>
@@ -37,6 +50,38 @@
 </main>
 <script>
   const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
+  let steps = [];
+  
+  function renderSteps(){
+    const out = document.getElementById('stepsList');
+    out.innerHTML = '';
+    steps.forEach((s, i) => {
+      const div = document.createElement('div');
+      div.className = 'step-item';
+      div.innerHTML = `<strong>${s.name}</strong>${s.subProtocolId ? ' (sub: '+s.subProtocolId+')' : ''}${s.dependsOn&&s.dependsOn.length?' (depends: '+s.dependsOn.join(', ')+')':''}<button class="remove" onclick="removeStep(${i})">Remove</button>`;
+      out.appendChild(div);
+    });
+  }
+  
+  window.removeStep = (i) => {
+    steps.splice(i, 1);
+    renderSteps();
+  }
+  
+  document.getElementById('addStepBtn').onclick = () => {
+    const name = document.getElementById('stepName').value.trim();
+    if(!name){ alert('Step name required'); return }
+    const subProto = document.getElementById('stepSubProto').value.trim() || null;
+    const deps = document.getElementById('stepDeps').value.trim();
+    const dependsOn = deps ? deps.split(',').map(s => s.trim()).filter(s => s) : [];
+    
+    steps.push({name, subProtocolId: subProto ? subProto : null, dependsOn});
+    document.getElementById('stepName').value = '';
+    document.getElementById('stepSubProto').value = '';
+    document.getElementById('stepDeps').value = '';
+    renderSteps();
+  }
+  
   async function list(){
     const out = document.getElementById('list'); out.innerHTML='Loading...';
     try{
@@ -50,19 +95,27 @@
       })
     }catch(e){ out.innerText='Error: '+e.message }
   }
+  
   document.getElementById('refreshBtn').onclick = list;
+  
   document.getElementById('createBtn').onclick = async ()=>{
     const name = document.getElementById('name').value.trim();
     const description = document.getElementById('description').value.trim();
     if(!name){ alert('Name required'); return }
+    
     try{
-      const res = await fetch(API_BASE + '/api/protocols', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description})});
+      const res = await fetch(API_BASE + '/api/protocols', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description,steps})});
       if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) }
       const json = await res.json();
       document.getElementById('createResult').innerText = 'Created: '+json.id;
+      document.getElementById('name').value = '';
+      document.getElementById('description').value = '';
+      steps = [];
+      renderSteps();
       list();
     }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
   }
+  
   list();
 </script>
 </body>
