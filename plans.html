@@ -45,12 +45,32 @@
 </main>
 <script>
   const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
+
+  function renderPlanNode(node, depth = 0) {
+    const indent = '  '.repeat(depth);
+    const lines = [];
+    lines.push(`${indent}${node.type}: ${node.name} [${node.status}] (${node.id})`);
+    if (node.implementedAction) {
+      lines.push(`${indent}  implemented: start=${node.implementedAction.actualStart || ''}, party=${node.implementedAction.actualParty || ''}, location=${node.implementedAction.actualLocation || ''}`);
+    }
+    if (node.allocations && node.allocations.length) {
+      lines.push(`${indent}  allocations:`);
+      node.allocations.forEach(allocation => {
+        lines.push(`${indent}    - ${allocation.resourceTypeName || allocation.resourceTypeId}: ${allocation.quantity} ${allocation.kind}${allocation.assetId ? ' asset=' + allocation.assetId : ''}`);
+      });
+    }
+    (node.children || []).forEach(child => {
+      lines.push(renderPlanNode(child, depth + 1));
+    });
+    return lines.join('\n');
+  }
+
   document.getElementById('createFromProtocol').onclick = async ()=>{
     const proto = document.getElementById('protocolId').value.trim();
     const name = document.getElementById('planName').value.trim();
     if(!proto||!name){ alert('protocol and name required'); return }
     try{
-      const res = await fetch(API_BASE + '/api/plans/from-protocol/' + encodeURIComponent(proto), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+      const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, sourceProtocolId: proto})});
       if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) }
       const json = await res.json(); document.getElementById('createResult').innerText = 'Created: '+json.id;
     }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
@@ -61,11 +81,22 @@
   }
   document.getElementById('viewBtn').onclick = async ()=>{
     const id = document.getElementById('viewId').value.trim(); if(!id){alert('id required');return}
-    try{ const res = await fetch(API_BASE + '/api/plans/' + encodeURIComponent(id)); const json = await res.json(); document.getElementById('planView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('planView').innerText = 'Error: '+e.message }
+    try{
+      const res = await fetch(API_BASE + '/api/plans/' + encodeURIComponent(id));
+      const json = await res.json();
+      document.getElementById('planView').innerText = renderPlanNode(json);
+    }catch(e){ document.getElementById('planView').innerText = 'Error: '+e.message }
   }
   document.getElementById('summaryBtn').onclick = async ()=>{
     const id = document.getElementById('summaryId').value.trim(); if(!id){alert('id required');return}
-    try{ const res = await fetch(API_BASE + '/api/plans/' + encodeURIComponent(id) + '/summary'); const json = await res.json(); document.getElementById('summaryView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('summaryView').innerText = 'Error: '+e.message }
+    try{
+      const res = await fetch(API_BASE + '/api/plans/' + encodeURIComponent(id) + '/report');
+      const json = await res.json();
+      document.getElementById('summaryView').innerText = json.map(row => {
+        const allocations = Object.entries(row.allocations || {}).map(([resource, quantity]) => `${resource}=${quantity}`).join(', ');
+        return `${row.type}: ${row.name} [${row.status}] ${allocations}`;
+      }).join('\n');
+    }catch(e){ document.getElementById('summaryView').innerText = 'Error: '+e.message }
   }
 </script>
 </body>
