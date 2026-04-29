@@ -29,7 +29,7 @@
   const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
   document.getElementById('load').onclick = async ()=>{
     const page = document.getElementById('page').value || 0; const size = document.getElementById('size').value || 20;
-    try{ const res = await fetch(API_BASE + '/audit-log?page=' + encodeURIComponent(page) + '&size=' + encodeURIComponent(size)); const data = await res.json(); document.getElementById('view').innerText = JSON.stringify(data,null,2);}catch(e){ document.getElementById('view').innerText = 'Error: '+e.message }
+    try{ const res = await fetch(API_BASE + '/api/audit-log?page=' + encodeURIComponent(page) + '&size=' + encodeURIComponent(size)); const data = await res.json(); document.getElementById('view').innerText = JSON.stringify(data,null,2);}catch(e){ document.getElementById('view').innerText = 'Error: '+e.message }
   }
 </script>
 </body>

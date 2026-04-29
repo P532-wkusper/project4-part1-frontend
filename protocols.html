@@ -40,7 +40,7 @@
   async function list(){
     const out = document.getElementById('list'); out.innerHTML='Loading...';
     try{
-      const res = await fetch(API_BASE + '/protocols');
+      const res = await fetch(API_BASE + '/api/protocols');
       const data = await res.json();
       out.innerHTML='';
       data.forEach(p=>{
@@ -56,7 +56,7 @@
     const description = document.getElementById('description').value.trim();
     if(!name){ alert('Name required'); return }
     try{
-      const res = await fetch(API_BASE + '/protocols', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description,steps:[]})});
+      const res = await fetch(API_BASE + '/api/protocols', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description,steps:[]})});
       const json = await res.json();
       document.getElementById('createResult').innerText = 'Created: '+(json.id||JSON.stringify(json));
       list();

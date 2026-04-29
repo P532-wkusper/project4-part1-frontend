@@ -50,21 +50,21 @@
     const name = document.getElementById('planName').value.trim();
     if(!proto||!name){ alert('protocol and name required'); return }
     try{
-      const res = await fetch(API_BASE + '/plans/from-protocol/' + encodeURIComponent(proto), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+      const res = await fetch(API_BASE + '/api/plans/from-protocol/' + encodeURIComponent(proto), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
       const json = await res.json(); document.getElementById('createResult').innerText = 'Created: '+(json.id||JSON.stringify(json));
     }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
   }
   document.getElementById('createScratch').onclick = async ()=>{
     const name = document.getElementById('scratchName').value.trim(); if(!name){alert('name required');return}
-    try{ const res = await fetch(API_BASE + '/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})}); const json = await res.json(); alert('Created: '+(json.id||JSON.stringify(json))); }catch(e){ alert('Error: '+e.message) }
+    try{ const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})}); const json = await res.json(); alert('Created: '+(json.id||JSON.stringify(json))); }catch(e){ alert('Error: '+e.message) }
   }
   document.getElementById('viewBtn').onclick = async ()=>{
     const id = document.getElementById('viewId').value.trim(); if(!id){alert('id required');return}
-    try{ const res = await fetch(API_BASE + '/plans/' + encodeURIComponent(id)); const json = await res.json(); document.getElementById('planView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('planView').innerText = 'Error: '+e.message }
+    try{ const res = await fetch(API_BASE + '/api/plans/' + encodeURIComponent(id)); const json = await res.json(); document.getElementById('planView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('planView').innerText = 'Error: '+e.message }
   }
   document.getElementById('summaryBtn').onclick = async ()=>{
     const id = document.getElementById('summaryId').value.trim(); if(!id){alert('id required');return}
-    try{ const res = await fetch(API_BASE + '/plans/' + encodeURIComponent(id) + '/summary'); const json = await res.json(); document.getElementById('summaryView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('summaryView').innerText = 'Error: '+e.message }
+    try{ const res = await fetch(API_BASE + '/api/plans/' + encodeURIComponent(id) + '/summary'); const json = await res.json(); document.getElementById('summaryView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('summaryView').innerText = 'Error: '+e.message }
   }
 </script>
 </body>

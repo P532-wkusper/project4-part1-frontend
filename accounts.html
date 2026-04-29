@@ -35,13 +35,13 @@
   document.getElementById('refresh').onclick = async ()=>{
     const t = document.getElementById('balances'); t.innerHTML='';
     try{
-      const res = await fetch(API_BASE + '/accounts/balances'); const data = await res.json();
+      const res = await fetch(API_BASE + '/api/accounts/balances'); const data = await res.json();
       data.forEach(a=>{ const tr = document.createElement('tr'); tr.innerHTML = `<td>${a.name||a.id}</td><td>${a.kind}</td><td>${a.resourceTypeName||''}</td><td>${a.balance}</td><td>${a.isOverconsumed}</td>`; t.appendChild(tr)});
     }catch(e){ document.getElementById('balances').innerHTML = '<tr><td colspan="5">Error: '+e.message+'</td></tr>' }
   }
   document.getElementById('loadEntries').onclick = async ()=>{
     const id = document.getElementById('acctId').value.trim(); if(!id){ alert('id required'); return }
-    try{ const res = await fetch(API_BASE + '/accounts/' + encodeURIComponent(id) + '/entries'); const data = await res.json(); document.getElementById('entriesView').innerText = JSON.stringify(data,null,2);}catch(e){ document.getElementById('entriesView').innerText = 'Error: '+e.message }
+    try{ const res = await fetch(API_BASE + '/api/accounts/' + encodeURIComponent(id) + '/entries'); const data = await res.json(); document.getElementById('entriesView').innerText = JSON.stringify(data,null,2);}catch(e){ document.getElementById('entriesView').innerText = 'Error: '+e.message }
   }
 </script>
 </body>

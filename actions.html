@@ -46,7 +46,7 @@
   async function call(action){
     const id = document.getElementById('actionId').value.trim(); if(!id){ alert('action id required'); return }
     try{
-      const res = await fetch(API_BASE + '/actions/' + encodeURIComponent(id) + '/' + action, {method:'POST'});
+      const res = await fetch(API_BASE + '/api/actions/' + encodeURIComponent(id) + '/' + action, {method:'POST'});
       const json = await res.json(); document.getElementById('transitionResult').innerText = JSON.stringify(json,null,2);
     }catch(e){ document.getElementById('transitionResult').innerText = 'Error: '+e.message }
   }
@@ -65,7 +65,7 @@
     if(!actionId||!resourceTypeId||!quantity){ alert('action id, resource type and quantity required'); return }
     const body = {resourceTypeId,quantity,kind}; if(assetId) body.assetId = assetId;
     try{
-      const res = await fetch(API_BASE + '/actions/' + encodeURIComponent(actionId) + '/allocations', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      const res = await fetch(API_BASE + '/api/actions/' + encodeURIComponent(actionId) + '/allocations', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
       const json = await res.json(); document.getElementById('allocResult').innerText = JSON.stringify(json,null,2);
     }catch(e){ document.getElementById('allocResult').innerText = 'Error: '+e.message }
   }
