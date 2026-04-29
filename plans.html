@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Plans</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0}
+    header{background:#264653;color:#fff;padding:12px}
+    main{padding:16px}
+    .card{border:1px solid #ddd;padding:12px;margin:8px 0;border-radius:6px}
+    input,select{width:100%;padding:8px;margin:6px 0}
+    button{padding:8px 12px;background:#2a9d8f;color:#fff;border:0;border-radius:4px}
+    pre{background:#f4f4f4;padding:8px}
+  </style>
+</head>
+<body>
+<header><h2 style="margin:0">Plans</h2></header>
+<main>
+  <section class="card">
+    <h3>Create Plan From Protocol</h3>
+    <label>Protocol ID <input id="protocolId"></label>
+    <label>Plan Name <input id="planName"></label>
+    <button id="createFromProtocol">Create</button>
+    <div id="createResult"></div>
+  </section>
+
+  <section class="card">
+    <h3>Create Scratch Plan</h3>
+    <label>Name <input id="scratchName"></label>
+    <button id="createScratch">Create</button>
+  </section>
+
+  <section class="card">
+    <h3>View Plan</h3>
+    <label>Plan ID <input id="viewId"></label>
+    <button id="viewBtn">Load</button>
+    <pre id="planView">No plan loaded</pre>
+  </section>
+
+  <section class="card">
+    <h3>Summary Report</h3>
+    <label>Plan ID <input id="summaryId"></label>
+    <button id="summaryBtn">Get Summary</button>
+    <pre id="summaryView">No report</pre>
+  </section>
+
+  <a href="index.html">Back</a>
+</main>
+<script>
+  const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
+  document.getElementById('createFromProtocol').onclick = async ()=>{
+    const proto = document.getElementById('protocolId').value.trim();
+    const name = document.getElementById('planName').value.trim();
+    if(!proto||!name){ alert('protocol and name required'); return }
+    try{
+      const res = await fetch(API_BASE + '/plans/from-protocol/' + encodeURIComponent(proto), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+      const json = await res.json(); document.getElementById('createResult').innerText = 'Created: '+(json.id||JSON.stringify(json));
+    }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
+  }
+  document.getElementById('createScratch').onclick = async ()=>{
+    const name = document.getElementById('scratchName').value.trim(); if(!name){alert('name required');return}
+    try{ const res = await fetch(API_BASE + '/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})}); const json = await res.json(); alert('Created: '+(json.id||JSON.stringify(json))); }catch(e){ alert('Error: '+e.message) }
+  }
+  document.getElementById('viewBtn').onclick = async ()=>{
+    const id = document.getElementById('viewId').value.trim(); if(!id){alert('id required');return}
+    try{ const res = await fetch(API_BASE + '/plans/' + encodeURIComponent(id)); const json = await res.json(); document.getElementById('planView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('planView').innerText = 'Error: '+e.message }
+  }
+  document.getElementById('summaryBtn').onclick = async ()=>{
+    const id = document.getElementById('summaryId').value.trim(); if(!id){alert('id required');return}
+    try{ const res = await fetch(API_BASE + '/plans/' + encodeURIComponent(id) + '/summary'); const json = await res.json(); document.getElementById('summaryView').innerText = JSON.stringify(json,null,2);}catch(e){ document.getElementById('summaryView').innerText = 'Error: '+e.message }
+  }
+</script>
+</body>
+</html>

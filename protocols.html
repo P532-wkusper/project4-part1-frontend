@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Protocols</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0;background:#fff}
+    header{background:#264653;color:#fff;padding:12px}
+    main{padding:16px}
+    .card{border:1px solid #ddd;padding:12px;margin:8px 0;border-radius:6px}
+    input,textarea,select{width:100%;padding:8px;margin:6px 0}
+    button{padding:8px 12px;background:#2a9d8f;color:#fff;border:0;border-radius:4px}
+    ul{list-style:none;padding:0}
+    li{padding:8px 0;border-bottom:1px dashed #eee}
+    pre{background:#f4f4f4;padding:8px}
+  </style>
+</head>
+<body>
+<header>
+  <h2 style="margin:0">Protocols</h2>
+</header>
+<main>
+  <section class="card">
+    <h3>Create Protocol</h3>
+    <label>Name <input id="name"></label>
+    <label>Description <textarea id="description"></textarea></label>
+    <button id="createBtn">Create</button>
+    <div id="createResult"></div>
+  </section>
+
+  <section class="card">
+    <h3>All Protocols</h3>
+    <button id="refreshBtn">Refresh</button>
+    <ul id="list"></ul>
+  </section>
+
+  <a href="index.html">Back</a>
+</main>
+<script>
+  const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
+  async function list(){
+    const out = document.getElementById('list'); out.innerHTML='Loading...';
+    try{
+      const res = await fetch(API_BASE + '/protocols');
+      const data = await res.json();
+      out.innerHTML='';
+      data.forEach(p=>{
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${p.name}</strong> — ${p.description || ''}<br><pre>${JSON.stringify(p.steps||[],null,2)}</pre>`;
+        out.appendChild(li);
+      })
+    }catch(e){ out.innerText='Error: '+e.message }
+  }
+  document.getElementById('refreshBtn').onclick = list;
+  document.getElementById('createBtn').onclick = async ()=>{
+    const name = document.getElementById('name').value.trim();
+    const description = document.getElementById('description').value.trim();
+    if(!name){ alert('Name required'); return }
+    try{
+      const res = await fetch(API_BASE + '/protocols', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,description,steps:[]})});
+      const json = await res.json();
+      document.getElementById('createResult').innerText = 'Created: '+(json.id||JSON.stringify(json));
+      list();
+    }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
+  }
+  list();
+</script>
+</body>
+</html>

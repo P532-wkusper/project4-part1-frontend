@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Resource Types</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0}
+    header{background:#264653;color:#fff;padding:12px}
+    main{padding:16px}
+    .card{border:1px solid #ddd;padding:12px;margin:8px 0;border-radius:6px}
+    input,select{width:100%;padding:8px;margin:6px 0}
+    button{padding:8px 12px;background:#2a9d8f;color:#fff;border:0;border-radius:4px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #eee;padding:8px}
+  </style>
+</head>
+<body>
+<header><h2 style="margin:0">Resource Types</h2></header>
+<main>
+  <section class="card">
+    <h3>Create Resource Type</h3>
+    <label>Name <input id="name"></label>
+    <label>Kind <select id="kind"><option value="CONSUMABLE">CONSUMABLE</option><option value="ASSET">ASSET</option></select></label>
+    <label>Unit <input id="unit"></label>
+    <button id="createBtn">Create</button>
+    <div id="createResult"></div>
+  </section>
+
+  <section class="card">
+    <h3>All Resource Types</h3>
+    <button id="refreshBtn">Refresh</button>
+    <table><thead><tr><th>Name</th><th>Kind</th><th>Unit</th><th>Pool Balance</th></tr></thead><tbody id="rows"></tbody></table>
+  </section>
+  <a href="index.html">Back</a>
+</main>
+<script>
+  const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
+  async function list(){
+    const rows = document.getElementById('rows'); rows.innerHTML='';
+    try{
+      const res = await fetch(API_BASE + '/resource-types');
+      const data = await res.json();
+      data.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.name}</td><td>${r.kind}</td><td>${r.unitOfMeasure||''}</td><td>${r.poolBalance||0}</td>`;
+        rows.appendChild(tr);
+      })
+    }catch(e){ rows.innerHTML = '<tr><td colspan="4">Error: '+e.message+'</td></tr>' }
+  }
+  document.getElementById('refreshBtn').onclick = list;
+  document.getElementById('createBtn').onclick = async ()=>{
+    const name = document.getElementById('name').value.trim();
+    const kind = document.getElementById('kind').value;
+    const unit = document.getElementById('unit').value.trim();
+    if(!name){ alert('Name required'); return }
+    try{
+      const res = await fetch(API_BASE + '/resource-types', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,kind,unitOfMeasure:unit})});
+      const json = await res.json();
+      document.getElementById('createResult').innerText = 'Created: '+(json.id||JSON.stringify(json));
+      list();
+    }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
+  }
+  list();
+</script>
+</body>
+</html>

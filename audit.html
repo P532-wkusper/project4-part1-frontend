@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Audit Log</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:0}
+    header{background:#264653;color:#fff;padding:12px}
+    main{padding:16px}
+    .card{border:1px solid #ddd;padding:12px;margin:8px 0;border-radius:6px}
+    input{width:100%;padding:8px;margin:6px 0}
+    button{padding:8px 12px;background:#2a9d8f;color:#fff;border:0;border-radius:4px}
+    pre{background:#f4f4f4;padding:8px}
+  </style>
+</head>
+<body>
+<header><h2 style="margin:0">Audit Log</h2></header>
+<main>
+  <section class="card">
+    <h3>List Audit Entries</h3>
+    <label>Page <input id="page" type="number" value="0"></label>
+    <label>Size <input id="size" type="number" value="20"></label>
+    <button id="load">Load</button>
+    <pre id="view">No entries</pre>
+  </section>
+  <a href="index.html">Back</a>
+</main>
+<script>
+  const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
+  document.getElementById('load').onclick = async ()=>{
+    const page = document.getElementById('page').value || 0; const size = document.getElementById('size').value || 20;
+    try{ const res = await fetch(API_BASE + '/audit-log?page=' + encodeURIComponent(page) + '&size=' + encodeURIComponent(size)); const data = await res.json(); document.getElementById('view').innerText = JSON.stringify(data,null,2);}catch(e){ document.getElementById('view').innerText = 'Error: '+e.message }
+  }
+</script>
+</body>
+</html>
