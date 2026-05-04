@@ -20,12 +20,14 @@
   <section class="card">
     <label>Protocol ID <input id="protocolId"></label>
     <label>Plan Name <input id="planName"></label>
+    <label>Target Start Date <input id="protocolTargetStartDate" type="date"></label>
     <button id="createFromProtocol">Create From Protocol</button>
     <div id="createResult"></div>
   </section>
 
   <section class="card">
     <label>Name <input id="scratchName"></label>
+    <label>Target Start Date <input id="scratchTargetStartDate" type="date"></label>
     <button id="createScratch">Create Scratch Plan</button>
   </section>
 
@@ -48,16 +50,19 @@
   document.getElementById('createFromProtocol').onclick = async ()=>{
     const proto = document.getElementById('protocolId').value.trim();
     const name = document.getElementById('planName').value.trim();
-    if(!proto||!name){ alert('protocol and name required'); return }
+    const targetStartDate = document.getElementById('protocolTargetStartDate').value;
+    if(!proto||!name||!targetStartDate){ alert('protocol, name, and target start date required'); return }
     try{
-      const res = await fetch(API_BASE + '/api/plans/from-protocol/' + encodeURIComponent(proto), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})});
+      const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, sourceProtocolId: proto, targetStartDate})});
       if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) }
       const json = await res.json(); document.getElementById('createResult').innerText = 'Created: '+json.id;
     }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
   }
   document.getElementById('createScratch').onclick = async ()=>{
-    const name = document.getElementById('scratchName').value.trim(); if(!name){alert('name required');return}
-    try{ const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})}); if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) } const json = await res.json(); alert('Created: '+json.id); }catch(e){ alert('Error: '+e.message) }
+    const name = document.getElementById('scratchName').value.trim();
+    const targetStartDate = document.getElementById('scratchTargetStartDate').value;
+    if(!name||!targetStartDate){alert('name and target start date required');return}
+    try{ const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, targetStartDate})}); if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) } const json = await res.json(); alert('Created: '+json.id); }catch(e){ alert('Error: '+e.message) }
   }
   document.getElementById('viewBtn').onclick = async ()=>{
     const id = document.getElementById('viewId').value.trim(); if(!id){alert('id required');return}

@@ -28,7 +28,7 @@
 
   <section class="card">
     <button id="refreshBtn">Refresh</button>
-    <table><thead><tr><th>Name</th><th>Kind</th><th>Unit</th><th>Pool Balance</th></tr></thead><tbody id="rows"></tbody></table>
+    <table><thead><tr><th>Name</th><th>Kind</th><th>Unit</th><th>Pool Account ID</th><th>Pool Balance</th></tr></thead><tbody id="rows"></tbody></table>
   </section>
   <a href="index.html">Back</a>
 </main>
@@ -41,10 +41,10 @@
       const data = await res.json();
       data.forEach(r=>{
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.name}</td><td>${r.kind}</td><td>${r.unitOfMeasure||''}</td><td>${r.poolBalance||0}</td>`;
+        tr.innerHTML = `<td>${r.name}</td><td>${r.kind}</td><td>${r.unit||''}</td><td>${r.poolAccountId||''}</td><td>${r.currentBalance??0}</td>`;
         rows.appendChild(tr);
       })
-    }catch(e){ rows.innerHTML = '<tr><td colspan="4">Error: '+e.message+'</td></tr>' }
+    }catch(e){ rows.innerHTML = '<tr><td colspan="5">Error: '+e.message+'</td></tr>' }
   }
   document.getElementById('refreshBtn').onclick = list;
   document.getElementById('createBtn').onclick = async ()=>{
