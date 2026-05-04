@@ -18,6 +18,11 @@
 <header><h2 style="margin:0">Plans</h2></header>
 <main>
   <section class="card">
+    <button id="refreshPlans">Refresh Plan IDs</button>
+    <div id="planIndex"></div>
+  </section>
+
+  <section class="card">
     <label>Protocol ID <input id="protocolId"></label>
     <label>Plan Name <input id="planName"></label>
     <label>Target Start Date <input id="protocolTargetStartDate" type="date"></label>
@@ -48,6 +53,28 @@
 <script>
   const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
 
+  async function refreshPlanIndex() {
+    const container = document.getElementById('planIndex');
+    container.innerHTML = 'Loading...';
+    try {
+      const res = await fetch(API_BASE + '/api/plans');
+      const plans = await res.json();
+      if (!plans.length) {
+        container.innerHTML = '<div>No plans yet.</div>';
+        return;
+      }
+      container.innerHTML = plans.map(plan => `<div><button type="button" class="plan-link" data-plan-id="${plan.id}">${plan.name}</button> <span>${plan.status}</span> <small>${plan.id}</small></div>`).join('');
+      container.querySelectorAll('.plan-link').forEach(button => {
+        button.onclick = () => {
+          document.getElementById('viewId').value = button.dataset.planId;
+          document.getElementById('viewBtn').click();
+        };
+      });
+    } catch (error) {
+      container.innerHTML = 'Error: ' + error.message;
+    }
+  }
+
   function renderPlanNode(node, depth = 0) {
     const indent = '  '.repeat(depth);
     const lines = [];
@@ -75,14 +102,14 @@
     try{
       const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, sourceProtocolId: proto, targetStartDate})});
       if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) }
-      const json = await res.json(); document.getElementById('createResult').innerText = 'Created: '+json.id;
+      const json = await res.json(); document.getElementById('createResult').innerText = 'Created: '+json.id; refreshPlanIndex();
     }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
   }
   document.getElementById('createScratch').onclick = async ()=>{
     const name = document.getElementById('scratchName').value.trim();
     const targetStartDate = document.getElementById('scratchTargetStartDate').value;
     if(!name||!targetStartDate){alert('name and target start date required');return}
-    try{ const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, targetStartDate})}); if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) } const json = await res.json(); alert('Created: '+json.id); }catch(e){ alert('Error: '+e.message) }
+    try{ const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, targetStartDate})}); if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) } const json = await res.json(); alert('Created: '+json.id); refreshPlanIndex(); }catch(e){ alert('Error: '+e.message) }
   }
   document.getElementById('viewBtn').onclick = async ()=>{
     const id = document.getElementById('viewId').value.trim(); if(!id){alert('id required');return}
@@ -103,6 +130,9 @@
       }).join('\n');
     }catch(e){ document.getElementById('summaryView').innerText = 'Error: '+e.message }
   }
+
+  document.getElementById('refreshPlans').onclick = refreshPlanIndex;
+  refreshPlanIndex();
 </script>
 </body>
 </html>
