@@ -18,6 +18,12 @@
 <header><h2 style="margin:0">Actions</h2></header>
 <main>
   <section class="card">
+    <label>Plan ID <input id="planId"></label>
+    <button id="loadActions">Load Action IDs From Plan</button>
+    <pre id="planActionsView"></pre>
+  </section>
+
+  <section class="card">
     <label>Action ID <input id="actionId"></label>
     <div style="display:flex;gap:6px">
       <button id="implement">Implement</button>
@@ -45,6 +51,33 @@
 </main>
 <script>
   const API_BASE = 'https://resource-planning-part1-latest.onrender.com';
+
+  function collectActionIds(node, results = []) {
+    if (node && node.type === 'LEAF') {
+      results.push({ id: node.id, name: node.name, status: node.status });
+    }
+    (node.children || []).forEach(child => collectActionIds(child, results));
+    return results;
+  }
+
+  document.getElementById('loadActions').onclick = async ()=>{
+    const planId = document.getElementById('planId').value.trim();
+    if(!planId){ alert('plan id required'); return }
+    try{
+      const res = await fetch(API_BASE + '/api/plans/' + encodeURIComponent(planId));
+      if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) }
+      const plan = await res.json();
+      const actions = collectActionIds(plan);
+      if(!actions.length){
+        document.getElementById('planActionsView').innerText = 'No action IDs found in this plan.';
+        return;
+      }
+      document.getElementById('planActionsView').innerText = actions.map(action => `${action.name} [${action.status}] -> ${action.id}`).join('\n');
+      document.getElementById('actionId').value = actions[0].id;
+      document.getElementById('allocActionId').value = actions[0].id;
+    }catch(e){ document.getElementById('planActionsView').innerText = 'Error: ' + e.message }
+  };
+
   async function call(action){
     const id = document.getElementById('actionId').value.trim(); if(!id){ alert('action id required'); return }
     try{
