@@ -90,7 +90,7 @@
       out.innerHTML='';
       data.forEach(p=>{
         const li = document.createElement('li');
-        li.innerHTML = `<strong>${p.name}</strong> — ${p.description || ''}<br><pre>${JSON.stringify(p.steps||[],null,2)}</pre>`;
+        li.innerHTML = `<strong>${p.name}</strong><br><small>ID: ${p.id}</small> — ${p.description || ''}<br><pre>${JSON.stringify(p.steps||[],null,2)}</pre>`;
         out.appendChild(li);
       })
     }catch(e){ out.innerText='Error: '+e.message }
