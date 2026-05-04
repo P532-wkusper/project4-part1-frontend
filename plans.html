@@ -73,11 +73,7 @@
     const targetStartDate = document.getElementById('protocolTargetStartDate').value;
     if(!proto||!name||!targetStartDate){ alert('protocol, name, and target start date required'); return }
     try{
-<<<<<<< HEAD
       const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, sourceProtocolId: proto, targetStartDate})});
-=======
-      const res = await fetch(API_BASE + '/api/plans', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name, sourceProtocolId: proto})});
->>>>>>> 7a88616d410ceda71f85168079a40bebba8c8c8b
       if(!res.ok){ const err = await res.text(); throw new Error(res.status + ': ' + err) }
       const json = await res.json(); document.getElementById('createResult').innerText = 'Created: '+json.id;
     }catch(e){ document.getElementById('createResult').innerText = 'Error: '+e.message }
